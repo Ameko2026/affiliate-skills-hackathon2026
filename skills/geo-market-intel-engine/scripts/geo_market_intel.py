@@ -1,146 +1,283 @@
 #!/usr/bin/env python3
-"""Geo Market Intelligence Engine — 区域市场情报引擎"""
+# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+geo_market_intel.py
+Geo Market Intelligence Engine — 完整执行脚本（框架版）
 
-import argparse, json, sys, re
-from datetime import datetime
-from pathlib import Path
+功能：
+1. 接收用户指定的区域 + Vertical + 时间窗口
+2. 构建搜索查询（通过 AI Agent 调用 web_search 执行）
+3. 聚合竞品 Offer 动态、监管变化
+4. 生成结构化市场情报 JSON + Markdown 简报
 
+真实数据依赖（需配置）：
+  - AppFollow API 或 AppMagic API（Top App 排行）
+  - Adjust / AppsFlyer 行业报告（趋势）
+  - web_search 工具（监管动态、实时新闻）
 
-# Regional market data template (extensible via config)
-REGIONAL_TEMPLATES = {
-    "MENA": {
-        "top_categories": ["Fintech", "Gaming", "E-commerce", "Crypto"],
-        "key_markets": ["Saudi Arabia", "UAE", "Egypt", "Qatar"],
-        "trends": ["Digital payments adoption", "Gaming growth", "BNPL expansion"],
-        "regulatory_notes": "SAMA/UAE CB regulations tightening on digital lending",
-    },
-    "LATAM": {
-        "top_categories": ["Fintech", "Social", "Ride-hailing", "E-commerce"],
-        "key_markets": ["Brazil", "Mexico", "Argentina", "Colombia"],
-        "trends": ["Pix payment growth", "Super-app emergence", "Credit adoption"],
-        "regulatory_notes": "BCB/CMV regulations on crypto and digital wallets",
-    },
-    "APAC": {
-        "top_categories": ["Fintech", "Gaming", "Social", "E-commerce"],
-        "key_markets": ["Japan", "Korea", "India", "Indonesia", "Thailand"],
-        "trends": ["Super-app dominance", "Cross-border e-commerce", "Web3 exploration"],
-        "regulatory_notes": "Varied: JP/KR strict, ID/TH more flexible",
-    },
-    "EU_US": {
-        "top_categories": ["Fintech", "SaaS", "Health", "Productivity"],
-        "key_markets": ["US", "UK", "Germany", "France"],
-        "trends": ["AI integration", "Privacy-first products", "Subscription fatigue"],
-        "regulatory_notes": "GDPR/DMA compliance critical; Apple ATT impact ongoing",
-    },
+用法：
+    python3 geo_market_intel.py \
+        --region LATAM \
+        --vertical Finance \
+        --output latam_finance_intel.md
+"""
+
+import argparse
+import json
+import sys
+import time
+from datetime import datetime, timezone, timedelta
+
+# ── 区域 & 国家配置 ──────────────────────────────────
+GEO_MAPPING = {
+    "MENA":        ["SA", "AE", "KW", "OM", "QA", "BH", "EG", "JO", "LB", "IQ"],
+    "LATAM":       ["BR", "MX", "AR", "CO", "CL", "PE", "UY", "PY", "BO", "EC", "VE"],
+    "APAC":        ["IN", "ID", "TH", "VN", "PH", "MY", "SG", "JP", "KR", "TW", "HK"],
+    "Europe_US":   ["US", "GB", "DE", "FR", "IT", "ES", "CA", "AU", "NZ", "IE"],
+}
+
+VERTICAL_KEYWORDS = {
+    "Finance":      ["bank", "loan", "credit", "fintech", "payment", "wallet",
+                     "nxxx", "nubank", "jxxxx", "pix"],
+    "Shopping":     ["shop", "store", "mall", "market", "ecommerce",
+                     "mercado", "shopee", "lazada", "amazon"],
+    "Betting":      ["bet", "casino", "sport", "gambling", "poker",
+                     "betano", "bet365", "sportingbet"],
+    "Gaming":       ["game", "play", "puzzle", "rpg", "casual", "royale"],
+    "Forex_Crypto": ["forex", "crypto", "trading", "bitcoin", "binance", "bybit"],
+}
+
+# iOS App Store 国家代码映射
+IOS_CC_MAP = {
+    "BR": "br", "MX": "mx", "AR": "ar", "CO": "co", "CL": "cl", "PE": "pe",
+    "IN": "in", "ID": "id", "TH": "th", "VN": "vn", "PH": "ph", "MY": "my",
+    "US": "us", "GB": "gb", "DE": "de", "FR": "fr", "IT": "it", "ES": "es",
+    "SA": "sa", "AE": "ae", "KR": "kr", "JP": "jp", "SG": "sg", "AU": "au",
 }
 
 
-class GeoMarketIntel:
-    """Multi-region market intelligence aggregator."""
+def build_search_queries(region: str, vertical: str, countries: list) -> list:
+    """构建搜索查询列表（由 AI Agent 调用 web_search 执行）"""
+    queries = []
+    vert_lower = vertical.lower()
 
-    def __init__(self, config_file=None):
-        self.templates = REGIONAL_TEMPLATES.copy()
-        if config_file and Path(config_file).exists():
-            with open(config_file, "r") as f:
-                custom = json.load(f)
-                self.templates.update(custom)
+    # Top App 搜索（每个区域取前3个国家）
+    for country in countries[:3]:
+        queries.append(f"top {vert_lower} apps google play {country} 2026")
+        queries.append(f"best {vert_lower} apps {country} 2026")
 
-    def generate_report(self, regions=None, output_path=None):
-        """
-        Generate market intelligence report for specified regions.
-        
-        In production, this would aggregate from:
-          - App Store / Google Play ranking APIs
-          - News feeds (RSS / web scraping)
-          - Competitor monitoring tools
-          - Regulatory databases
-        
-        For demo use, generates structured report from templates.
-        """
-        target_regions = regions or list(self.templates.keys())
-        
-        report = {
-            "generated_at": datetime.now().isoformat(),
-            "regions": {},
-        }
+    # 趋势搜索
+    queries.append(f"{region} {vert_lower} market size 2026")
+    queries.append(f"{region} affiliate marketing {vert_lower} opportunities 2026")
 
-        for region in target_regions:
-            if region not in self.templates:
-                continue
-            
-            tpl = self.templates[region]
-            
-            # Simulated top apps per category (placeholder for production API calls)
-            top_apps = {}
-            for cat in tpl.get("top_categories", []):
-                top_apps[cat] = [
-                    f"{cat} Leader {region}",
-                    f"{cat} Challenger A",
-                    f"{cat} Challenger B",
-                ]
+    # 监管动态
+    if vertical.lower() in ["finance", "fintech"]:
+        for country in countries[:2]:
+            queries.append(f"{country} central bank digital banking regulation 2026")
+    if vertical.lower() in ["betting", "gaming"]:
+        for country in countries[:2]:
+            queries.append(f"{country} online betting regulation 2026")
 
-            report["regions"][region] = {
-                "key_markets": tpl["key_markets"],
-                "top_categories": tpl["top_categories"],
-                "top_apps_by_category": top_apps,
-                "trends": tpl["trends"],
-                "regulatory_notes": tpl["regulatory_notes"],
-                "opportunity_score": self._score_opportunity(region),
-            }
+    return queries
 
-        if output_path:
-            Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-            with open(output_path, "w", encoding="utf-8") as f:
-                json.dump(report, f, indent=2, ensure_ascii=False)
 
-        return report
+def generate_intel_schema(region: str, vertical: str, countries: list) -> dict:
+    """生成市场情报数据结构"""
+    now = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+    return {
+        "report_meta": {
+            "region": region,
+            "countries": countries,
+            "vertical": vertical,
+            "generated_at": now,
+            "data_sources": [
+                "Adjust Mobile App Trends Report",
+                "AppsFlyer Performance Index",
+                "AppFollow Top Charts API (需要key)",
+                "Trading Economics (macro)",
+                "AI web_search (实时新闻/监管)"
+            ]
+        },
+        "top_apps": [],        # 由 API 或 AI 搜索填充
+        "trends": [],          # 由搜索/报告填充
+        "regulatory_notes": [], # 由搜索填充
+        "bd_opportunities": [], # AI 推荐的行动建议
+        "risk_flags": [],      # 高风险信号
+    }
 
-    def _score_opportunity(self, region):
-        """Score market opportunity (1-10) based on template heuristics."""
-        scores = {"MENA": 8.5, "LATAM": 9.0, "APAC": 7.5, "EU_US": 6.0}
-        return scores.get(region, 5.0)
 
-    def print_report(self, report):
-        """Print formatted market intelligence briefing."""
-        print(f"\n{'='*60}")
-        print(f"  Geo Market Intelligence Briefing")
-        print(f"  Generated: {report['generated_at'][:19]}")
-        print(f"{'='*60}")
+def generate_markdown_brief(intel: dict) -> str:
+    """将情报数据渲染为 Markdown 简报"""
+    meta = intel["report_meta"]
+    lines = []
+    lines.append(f"# {meta['region']} 市场情报简报 — {meta['vertical']}")
+    lines.append(f"**生成时间**：{meta['generated_at']}  ")
+    lines.append(f"**覆盖国家**：{', '.join(meta['countries'])}  ")
+    lines.append(f"**数据来源**：{', '.join(meta['data_sources'])}")
+    lines.append("")
 
-        for region, data in report["regions"].items():
-            score = data["opportunity_score"]
-            score_bar = "⭐" * int(score / 2) + "☆" * (5 - int(score / 2))
-            
-            print(f"\n  🌍 {region}  Opportunity: {score}/10  {score_bar}")
-            print(f"  {'-'*50}")
-            print(f"  Key Markets:     {', '.join(data['key_markets'])}")
-            print(f"  Top Categories:  {', '.join(data['top_categories'])}")
-            print(f"  Trends:")
-            for t in data["trends"]:
-                print(f"    → {t}")
-            print(f"  Regulatory:      {data['regulatory_notes']}")
+    # Top Apps
+    lines.append("## 📱 Top Offer 机会")
+    if intel["top_apps"]:
+        lines.append("| App | 平台 | 预估月安装 | 推荐 Vertical | 备注 |")
+        lines.append("|-----|------|---------|--------------|------|")
+        for app in intel["top_apps"][:10]:
+            name = app.get("name", "未知")
+            platform = app.get("platform", "-")
+            installs = app.get("estimated_installs_monthly", "-")
+            vert = app.get("recommended_vertical", meta["vertical"])
+            notes = app.get("notes", "")
+            lines.append(f"| {name} | {platform} | {installs} | {vert} | {notes} |")
+    else:
+        lines.append("*（需要配置 AppFollow / AppMagic API 以获取真实排行数据）*")
+    lines.append("")
+
+    # Trends
+    lines.append("## 📈 趋势信号")
+    if intel["trends"]:
+        for t in intel["trends"]:
+            lines.append(f"- {t}")
+    else:
+        lines.append("*（建议由 AI Agent 调用 web_search 获取最新趋势）*")
+    lines.append("")
+
+    # Regulatory
+    lines.append("## 🏛️ 监管动态")
+    if intel["regulatory_notes"]:
+        for r in intel["regulatory_notes"]:
+            lines.append(f"- {r}")
+    else:
+        lines.append("*（建议搜索目标市场监管动态）*")
+    lines.append("")
+
+    # BD Opportunities
+    lines.append("## 🎯 BD 行动建议")
+    if intel["bd_opportunities"]:
+        for i, opp in enumerate(intel["bd_opportunities"], 1):
+            lines.append(f"{i}. {opp}")
+    else:
+        lines.append("1. 确认目标区域 Top App 排行，识别高潜力 Offer")
+        lines.append("2. 搜索监管机构最新政策，评估合规风险")
+        lines.append("3. 联系已有渠道，询问目标 App 的流量成本和 CAP")
+    lines.append("")
+
+    # Risk Flags
+    if intel["risk_flags"]:
+        lines.append("## ⚠️ 风险信号")
+        for rf in intel["risk_flags"]:
+            lines.append(f"- ⚠️ {rf}")
+        lines.append("")
+
+    lines.append("---")
+    lines.append(f"*由 Geo Market Intelligence Engine 自动生成 | {meta['generated_at']}*")
+    return "\n".join(lines)
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Geo Market Intelligence Engine")
-    parser.add_argument("--regions", nargs="+",
-                        help="Regions to include (MENA LATAM APAC EU_US)")
-    parser.add_argument("-o", "--output", default="./market_intel.json",
-                        help="Output JSON path")
-    parser.add_argument("--config", default=None,
-                        help="Custom regional config JSON")
-    parser.add_argument("--json-only", action="store_true",
-                        help="Only output JSON, no text report")
+    parser = argparse.ArgumentParser(
+        description='Geo Market Intelligence Engine — 多区域市场情报聚合工具'
+    )
+    parser.add_argument('--region', required=True,
+                        choices=list(GEO_MAPPING.keys()),
+                        help='目标区域')
+    parser.add_argument('--vertical', required=True,
+                        choices=list(VERTICAL_KEYWORDS.keys()),
+                        help='目标垂直领域')
+    parser.add_argument('--countries', nargs='+', default=None,
+                        help='指定国家代码（默认使用该区域全部国家）')
+    parser.add_argument('--output', default=None, help='输出文件路径 (.md 或 .json)')
+    parser.add_argument('--format', choices=['markdown', 'json', 'both'],
+                        default='markdown', help='输出格式')
     args = parser.parse_args()
 
-    intel = GeoMarketIntel(args.config)
-    report = intel.generate_report(args.regions, args.output)
+    region = args.region
+    vertical = args.vertical
+    countries = args.countries or GEO_MAPPING[region]
+    base_name = f"{region.lower()}_{vertical.lower()}_intel"
+    output_path = args.output or f"{base_name}.md"
 
-    if not args.json_only:
-        intel.print_report(report)
+    print(f"═══ Geo Market Intelligence Engine ═══")
+    print(f"  区域：{region}")
+    print(f"  国家：{', '.join(countries)}")
+    print(f"  Vertical：{vertical}")
+    print()
 
-    print(f"\nReport saved to: {args.output}")
+    # Step 1：构建搜索查询
+    print("[Step 1] 构建搜索查询...")
+    queries = build_search_queries(region, vertical, countries)
+    print(f"  生成 {len(queries)} 条搜索查询")
+    print("  ⚠️ 以下查询需要由 AI Agent 调用 web_search 工具执行：")
+    for q in queries[:5]:
+        print(f"     - {q}")
+
+    # Step 2：初始化情报数据结构
+    print("[Step 2] 初始化情报数据结构...")
+    intel = generate_intel_schema(region, vertical, countries)
+
+    # Step 3：填充示例数据（LATAM/Finance 示例，正式使用请删除）
+    if region == "LATAM" and vertical == "Finance":
+        print("[Step 3] 加载 LATAM/Finance 示例数据（演示用）...")
+        intel["top_apps"] = [
+            {"name": "Nubank", "package_id": "com.nu.production", "platform": "Android",
+             "estimated_installs_monthly": "8M+", "affiliate_opportunity": True,
+             "recommended_vertical": "Finance", "notes": "CPI约$0.8，accnt事件活跃"},
+            {"name": "NXXX", "package_id": "br.com.nxxx", "platform": "Android",
+             "estimated_installs_monthly": "2M+", "affiliate_opportunity": True,
+             "recommended_vertical": "Finance", "notes": "直客 + Hertzmobi"},
+            {"name": "JXXXX", "package_id": "br.com.jxxxx", "platform": "Android",
+             "estimated_installs_monthly": "500K+", "affiliate_opportunity": True,
+             "recommended_vertical": "Finance", "notes": "有效性漏斗分析已配置"},
+        ]
+        intel["trends"] = [
+            "巴西 BNPL 渗透率 2026Q1 同比+45%",
+            "墨西哥数字银行用户突破 3000 万",
+            "阿根廷通胀背景下加密货币需求激增",
+        ]
+        intel["regulatory_notes"] = [
+            "巴西央行推进 PIX 即时支付扩展，要求 Fintech 加强 KYC",
+            "墨西哥 CNBV 加强对数字银行牌照审批",
+        ]
+        intel["bd_opportunities"] = [
+            "联系 Hertzmobi / FlexMedia，询问 Nubank 的独家流量包",
+            "评估 PIX 相关 Fintech Offer 的佣金结构（巴西市场）",
+            "关注阿根廷 crypto wallet Offer（通胀背景下的高增长垂类）",
+        ]
+    else:
+        print("[Step 3] ⚠️ 无示例数据，请配置 API 或由 AI 调用 web_search 填充")
+
+    # Step 4：生成输出
+    print(f"[Step 4] 生成输出：{output_path}")
+    md_content = generate_markdown_brief(intel)
+
+    if args.format in ['markdown', 'both']:
+        md_path = output_path if output_path.endswith('.md') else f"{base_name}.md"
+        with open(md_path, 'w', encoding='utf-8') as f:
+            f.write(md_content)
+        print(f"  ✅ Markdown 简报已保存：{md_path}")
+
+    if args.format in ['json', 'both']:
+        json_path = f"{base_name}.json"
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(intel, f, ensure_ascii=False, indent=2)
+        print(f"  ✅ JSON 数据已保存：{json_path}")
+
+    print("\n═══ 完成 ═══")
+    print(f"  情报条目：Top Apps={len(intel['top_apps'])}, Trends={len(intel['trends'])}")
+    print(f"  输出文件：{output_path}")
+    print()
+    print("⚠️  正式使用前请完成以下配置：")
+    print("  1. 配置 AppFollow / AppMagic API key（获取真实 Top Apps 排行）")
+    print("  2. 由 AI Agent 调用 web_search 工具执行搜索查询（获取趋势/监管）")
+    print("  3. 删除示例数据填充代码（LATAM/Finance 分支）")
+    print()
+    # 打印简报预览
+    print("═══ 简报预览 ═══")
+    print(md_content[:1000])
+    if len(md_content) > 1000:
+        print("... (完整内容请查看输出文件)")
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
