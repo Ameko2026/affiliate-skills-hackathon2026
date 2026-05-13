@@ -3,6 +3,7 @@ name: cross-regional-revenue-audit
 display_name: "Cross-Regional Revenue Audit Agent | 跨区域收入审计智能体"
 description: "Full-chain P&L (Profit & Loss) audit for digital product campaigns across regions. Automatically integrates MMP install/conversion data, ad network settlement data, and payment gateway revenue to generate a comprehensive 7-sheet Excel report highlighting ROI-positive and ROI-negative channels by region and cohort."
 version: 1.0.0
+agent_created: true
 category: dataops-automation
 tags: [revenue-audit, p-and-l, roi-analysis, financial-reporting, affiliate]
 layer: 1
@@ -103,6 +104,14 @@ Break_Even_Rate = Users_with_Revenue / Total_Users * 100
 | Channel_A | MENA | 12,345 | $15,000 | $22,500 | $7,500 | +50% | 🟢 |
 | Channel_B | LATAM | 8,900 | $12,000 | $8,100 | -$3,900 | -32.5% | 🔴 |
 | Channel_C | APAC | 15,600 | $18,000 | $27,300 | $9,300 | +51.7% | 🟢 |
+
+### Scripts
+
+The following bundled scripts support this skill:
+
+| Script | Purpose |
+|--------|---------|
+| [`revenue_audit.py`](scripts/revenue_audit.py) | Executable script |
 
 ### Dependencies
 

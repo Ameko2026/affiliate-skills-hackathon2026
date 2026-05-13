@@ -3,6 +3,7 @@ name: crm-channel-extraction
 display_name: "CRM Channel Extraction | 渠道 CRM 数据提取器"
 description: "Extracts and filters channel-specific data from AppsFlyer CSV exports or CRM databases. Supports multiple filter conditions (channel name match, media source, date range, event type, attribution status) and outputs clean datasets."
 version: 1.1.0
+agent_created: true
 category: dataops-automation
 tags: [crm, channel-extraction, appsflyer, data-filtering]
 layer: 1
@@ -54,6 +55,14 @@ python3 scripts/extract_channel.py \
   --end-date 2026-02-28 \
   --output output/channel_data.xlsx
 ```
+
+### Scripts
+
+The following bundled scripts support this skill:
+
+| Script | Purpose |
+|--------|---------|
+| [`extract_channel.py`](scripts/extract_channel.py) | Executable script |
 
 ### Dependencies
 

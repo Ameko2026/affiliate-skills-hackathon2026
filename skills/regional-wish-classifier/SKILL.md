@@ -3,6 +3,7 @@ name: regional-wish-classifier
 display_name: "Regional Wish Classifier | 区域 Wish 智能分类器"
 description: "Auto-classifies affiliate offers by geographic region based on country codes, geo-targeting fields, and contextual clues. Supports 5 regional zones (MENA, LATAM, APAC, Europe&US, Global) and generates separate regional spreadsheets synchronized with master tracking documents."
 version: 1.0.0
+agent_created: true
 category: business-intelligence
 tags: [geo-classification, regional-segmentation, affiliate-marketing, automation]
 layer: 2
@@ -83,6 +84,14 @@ Each regional file contains the same 8-column schema plus:
 - **Confidence scoring**: Low-confidence items flagged for human review
 - **Bidirectional sync**: Regional files can be merged back to master
 - **Template-based output**: Uses pre-formatted Excel templates per region
+
+### Scripts
+
+The following bundled scripts support this skill:
+
+| Script | Purpose |
+|--------|---------|
+| [`regional_classifier.py`](scripts/regional_classifier.py) | Executable script |
 
 ### Dependencies
 

@@ -3,6 +3,7 @@ name: ai-budget-optimizer
 display_name: "AI Budget Allocation Optimizer | AI 预算分配优化器"
 description: "Data-driven budget allocation optimizer for multi-channel affiliate campaigns. Analyzes historical channel effectiveness (ROI, decay rates, quality scores), applies attenuation models, and generates optimized budget distribution recommendations with CAP adjustments for each channel."
 version: 1.0.0
+agent_created: true
 category: dataops-automation
 tags: [budget-allocation, optimization, roi, campaign-management, affiliate]
 layer: 1
@@ -108,6 +109,14 @@ Matrix showing channels × KPIs with color intensity representing performance.
 - **Risk-adjusted**: Penalizes high-variance channels
 - **Constraint-aware**: Respects min/max budgets per channel
 - **Scenario modeling**: Shows conservative vs aggressive options
+
+### Scripts
+
+The following bundled scripts support this skill:
+
+| Script | Purpose |
+|--------|---------|
+| [`budget_optimizer.py`](scripts/budget_optimizer.py) | Executable script |
 
 ### Dependencies
 

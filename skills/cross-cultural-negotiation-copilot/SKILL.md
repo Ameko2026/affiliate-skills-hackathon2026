@@ -3,6 +3,7 @@ name: cross-cultural-negotiation-copilot
 display_name: "Cross-Cultural Negotiation Copilot | 跨文化谈判智能助手"
 description: "AI-powered cross-cultural communication adapter for affiliate partner negotiations. Generates culturally-appropriate email/message drafts that bridge communication style gaps between regions (e.g., Brazil direct style vs. Chinese indirect style). Includes Soft Wording, Validation Framing, and App Dnal Coordination Positioning strategies."
 version: 1.0.0
+agent_created: true
 category: cross-cultural-collaboration
 tags: [cross-cultural, negotiation, communication, brazil-china, soft-skills]
 layer: 4

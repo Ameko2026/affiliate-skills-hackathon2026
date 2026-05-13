@@ -3,6 +3,7 @@ name: pa-report-workflow
 display_name: "PA Report Workflow | PA 报告更新工作流"
 description: "Weekly PA (Protected Apps) report data update pipeline. Collects AppsFlyer PA CSV files from Downloads folder, processes them into JS array format, and injects data into an HTML report page. Handles cross-period date splitting and multi-app aggregation."
 version: 1.0.0
+agent_created: true
 category: anti-fraud
 tags: [pa-report, workflow, weekly-update, html-report, automation]
 layer: 3
@@ -89,6 +90,14 @@ SPLIT_DATE = "YYYY-MM-DD"  # Configurable split point
 1. **reasons must use list, not Counter**: Counter has no `.append()` method
 2. **inject_data.py handles single-line empty arrays**: `var week3Data = [];` needs special parsing
 3. **CSV filename dates may vary**: Always verify filenames before running
+
+### Scripts
+
+The following bundled scripts support this skill:
+
+| Script | Purpose |
+|--------|---------|
+| [`pa_report_workflow.py`](scripts/pa_report_workflow.py) | Executable script |
 
 ### Dependencies
 

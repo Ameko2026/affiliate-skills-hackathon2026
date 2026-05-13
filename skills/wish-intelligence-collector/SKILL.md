@@ -3,6 +3,7 @@ name: wish-intelligence-collector
 display_name: "Wish Intelligence Collector | 渠道 Wish 智能采集器"
 description: "AI-powered Wish List parser for affiliate marketing. Automatically extracts offer information from multi-format channel Wish Lists (screenshots via OCR, text, Excel) and converts them into a standardized 8-column tracking table. Eliminates manual data entry errors and ensures consistent data structure across all channels."
 version: 1.0.0
+agent_created: true
 category: business-intelligence
 tags: [wish-list, parsing, ocr, data-normalization, affiliate-marketing]
 layer: 2
@@ -70,6 +71,14 @@ Automatically parse channel Wish Lists from multiple formats (OCR screenshots, p
 - **Primary**: Excel file (.xlsx) with formatted 8-column table
 - **Secondary**: CSV export for system integration
 - **Validation report**: List of rows with missing or flagged fields
+
+### Scripts
+
+The following bundled scripts support this skill:
+
+| Script | Purpose |
+|--------|---------|
+| [`wish_collector.py`](scripts/wish_collector.py) | Executable script |
 
 ### Dependencies
 

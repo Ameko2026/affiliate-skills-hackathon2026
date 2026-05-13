@@ -3,6 +3,7 @@ name: macro-monitoring-agent
 display_name: "Macroeconomic Monitoring Agent | 宏观经济监控智能体"
 description: "Daily macroeconomic data monitoring and alerting system for cross-border affiliate operations. Tracks exchange rates, inflation indices, CPI, and key economic indicators across operating regions (MENA, LATAM, APAC) to inform budget decisions and flag currency/economic risks."
 version: 1.0.0
+agent_created: true
 category: dataops-automation
 tags: [macro-monitoring, economic-indicators, exchange-rate, alerting, cross-border]
 layer: 1
@@ -76,6 +77,14 @@ Alerts (1):
   [MEDIUM] BRL volatility +1.2% exceeds 7-day avg.
   Impact: LATAM CPA may increase ~1.2%
 ```
+
+### Scripts
+
+The following bundled scripts support this skill:
+
+| Script | Purpose |
+|--------|---------|
+| [`macro_monitor.py`](scripts/macro_monitor.py) | Executable script |
 
 ### Dependencies
 

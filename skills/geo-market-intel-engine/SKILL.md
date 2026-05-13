@@ -3,6 +3,7 @@ name: geo-market-intel-engine
 display_name: "Geo Market Intelligence Engine | 区域市场情报引擎"
 description: "Multi-region market intelligence aggregator for affiliate business development. Collects and synthesizes top apps, market trends, competitor dynamics, and regulatory updates across MENA, LATAM, APAC, and Europe&US to support BD decision-making."
 version: 1.0.0
+agent_created: true
 category: business-intelligence
 tags: [market-intelligence, competitive-analysis, bd-support, geo-expansion]
 layer: 2
@@ -62,6 +63,14 @@ BD Recommendations:
 4. Cross-reference with app_dnal data
 5. Generate regional brief document
 6. Distribute to stakeholders
+
+### Scripts
+
+The following bundled scripts support this skill:
+
+| Script | Purpose |
+|--------|---------|
+| [`geo_market_intel.py`](scripts/geo_market_intel.py) | Executable script |
 
 ### Dependencies
 

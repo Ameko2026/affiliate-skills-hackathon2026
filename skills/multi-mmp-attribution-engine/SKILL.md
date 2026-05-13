@@ -3,6 +3,7 @@ name: multi-mmp-attribution-engine
 display_name: "Multi-MMP Attribution Engine | 多平台归因清洗引擎"
 description: "Deduplicates and normalizes attribution data across multiple Mobile Measurement Partners (MMPs) like AppsFlyer and Adjust. Handles channel name variants, invalid events, and cross-platform data consolidation to produce clean, unified attribution datasets for downstream analysis."
 version: 1.0.0
+agent_created: true
 category: dataops-automation
 tags: [attribution, mmp, appsflyer, adjust, deduplication, data-cleaning]
 layer: 1
@@ -117,6 +118,14 @@ partner_c_channel_c:
 - **Audit trail**: Preserves original channel names for debugging
 - **Multi-MMP support**: Handles AppsFlyer and Adjust simultaneously
 - **Extensible**: New channels added to Source Bank without code changes
+
+### Scripts
+
+The following bundled scripts support this skill:
+
+| Script | Purpose |
+|--------|---------|
+| [`multi_mmp_attribution.py`](scripts/multi_mmp_attribution.py) | Executable script |
 
 ### Dependencies
 

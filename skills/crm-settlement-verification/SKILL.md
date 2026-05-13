@@ -3,6 +3,7 @@ name: crm-settlement-verification
 display_name: "CRM Settlement Verification | 结算数据核对智能体"
 description: "Automated settlement data verification from AppsFlyer in-app events CSV. Filters settlement records by channel, validates transaction IDs against promotion records, checks promotion window compliance, and generates a funnel analysis report."
 version: 1.1.0
+agent_created: true
 category: dataops-automation
 tags: [settlement, verification, reconciliation, appsflyer]
 layer: 1
@@ -56,6 +57,14 @@ Initial Data:         10,304 records
 Valid Settlements: 91 records
 Validation Rate: 0.88%
 ```
+
+### Scripts
+
+The following bundled scripts support this skill:
+
+| Script | Purpose |
+|--------|---------|
+| [`settlement_verify.py`](scripts/settlement_verify.py) | Executable script |
 
 ### Dependencies
 

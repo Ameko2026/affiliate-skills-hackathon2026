@@ -3,6 +3,7 @@ name: conversion-funnel-intelligence
 display_name: "Conversion Funnel Intelligence | 转化漏斗智能分析"
 description: "Analyzes conversion funnel performance for fintech/app verticals. Identifies funnel bottlenecks, projects conversion rates at each stage, and generates CAP (capacity) planning recommendations with color-coded effectiveness ratings for each traffic source."
 version: 1.0.0
+agent_created: true
 category: business-intelligence
 tags: [funnel-analysis, conversion-rate, cap-planning, fintech, affiliate]
 layer: 2
@@ -122,6 +123,14 @@ Based on funnel analysis, generate CAP suggestions:
 | 🟡 Yellow | Moderate effectiveness (25th-75th percentile) |
 | 🔴 Red | Low effectiveness (below 25th percentile) |
 | ⚪ Gray | Insufficient data |
+
+### Scripts
+
+The following bundled scripts support this skill:
+
+| Script | Purpose |
+|--------|---------|
+| [`funnel_intelligence.py`](scripts/funnel_intelligence.py) | Executable script |
 
 ### Dependencies
 
