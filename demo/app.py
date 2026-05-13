@@ -347,6 +347,6 @@ st.markdown("""
 <div style="text-align: center; color: gray;">
     <p>Built for <strong>Tencent Cloud Hackathon 2026</strong> · AI Agent Skill Track</p>
     <p>🌍 Empowering cross-border affiliate operations through AI automation</p>
-    <p><a href="https://github.com/yz18600753200-lgtm/affiliate-skills-hackathon2026">GitHub Repository</a> · MIT License</p>
+    <p><a href="https://github.com/Ameko2026/affiliate-skills-hackathon2026">GitHub Repository</a> · MIT License</p>
 </div>
 """, unsafe_allow_html=True)

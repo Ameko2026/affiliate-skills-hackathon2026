@@ -70,7 +70,7 @@ Global Affiliate Ops Agent
 
 ```bash
 # Clone the repository
-git clone https://github.com/yz18600753200-lgtm/affiliate-skills-hackathon2026.git
+git clone https://github.com/Ameko2026/affiliate-skills-hackathon2026.git
 cd affiliate-skills-hackathon2026
 
 # Install dependencies

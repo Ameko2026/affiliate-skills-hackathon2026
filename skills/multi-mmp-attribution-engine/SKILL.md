@@ -60,8 +60,8 @@ Channel B:
   category: "tier_2_network"
   region: "LATAM"
 
-partner_c_longhu:
-  canonical_name: "Partner C (Longhu)"
+partner_c_channel_c:
+  canonical_name: "Partner C (channel_c)"
   variants:
     - "channel_c_mob"
     - "channel_c_int"
