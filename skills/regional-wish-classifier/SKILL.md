@@ -1,7 +1,7 @@
 ---
-name: regional-wish-classifier
+name: wish-to-m-company-table
 display_name: "Regional Wish Classifier | 区域 Wish 智能分类器"
-description: "Auto-classifies affiliate offers by geographic region based on country codes, geo-targeting fields, and contextual clues. Supports 5 regional zones (MENA, LATAM, APAC, Europe&US, Global) and generates separate regional spreadsheets synchronized with master tracking documents."
+description: 将渠道 Wish List 数据按地区分类，写入 M COMPANY 格式的 xlsx 文件，并同步到腾讯文档在线表格。适用于需要按 MENA/US/Betting/LATAM/APAC/ForexCrypto 拆分数据的场景。
 version: 1.0.0
 agent_created: true
 compatibility:
@@ -17,77 +17,87 @@ trigger_keywords:
   - "Geo 分类"
   - "regional classify"
   - "MENA LATAM 分组"
+
 ---
 
-# Regional Wish Classifier
-## 区域 Wish 智能分类器
+# wish-to-m-company-table
 
-### Overview
+将任意渠道的 Wish List 原始数据，解析后按地区自动分类，输出为 M COMPANY 公司标准格式的 xlsx 文件，并同步到腾讯文档。
 
-Takes parsed Wish List data (output from Wish Intelligence Collector) and **auto-classifies each offer into one of 5 regional zones**, generating region-specific spreadsheets.
+## 适用场景
 
-### Supported Regions
+- 收到了渠道（如 Hertzmobi、FlexMedia 等）的 Wish List，需要填入公司 M COMPANY 格式表格
+- 需要按地区（MENA/US/Betting/LATAM/APAC/ForexCrypto）拆分数据到不同文件
+- 需要同时生成本地 xlsx 和腾讯文档在线表格
 
-| Region Code | Full Name | Covered Countries (Examples) |
-|-------------|-----------|------------------------------|
-| `MENA` | Middle East & North Africa | SA, AE, EG, MA, DZ, TN, JO, BH, KW, QA, OM, IQ, LB, LY, SY, YE, PS |
-| `LATAM` | Latin America | BR, MX, AR, CO, PE, CL, VE, EC, BO, PY, UY, PY, CR, PA, DO, GT, CU, HT, TT |
-| `APAC` | Asia-Pacific | ID, MY, TH, VN, PH, SG, IN, KR, JP, TW, HK, AU, NZ, PK, BD, MM, KH, LA |
-| `EU_US` | Europe & United States | US, GB, DE, FR, IT, ES, NL, PL, SE, NO, DK, FI, AT, BE, IE, PT, GR, CZ, RO, HU |
-| `GLOBAL` | Global / Multi-Region | Offers targeting multiple regions or worldwide |
+## 工作流程
 
-### Classification Rules
+### Step 1：解析原始数据
 
-```
-Priority Order:
-1. Explicit geo field in offer data → Direct match
-2. Country code in offer name/description → Map to region
-3. Tracking link domain TLD hint → Infer region
-4. Default → Flag for manual review
-```
+如果输入是原始文本（非结构化），先解析为结构化 CSV，字段包括：
+`Name, Vertical, Link, ID, Ad_type, Channel, Geo, Notes`
 
-### Execution Flow
+可复用 `m-company_wish_writer.py` 中的解析逻辑，或直接要求用户提供已解析的 CSV。
 
-```
-1. Input: Parsed Wish List (standardized 8-column format)
-   ↓
-2. For each offer row:
-   a. Check geo_target field (if populated)
-   b. Scan offer_name for country keywords
-   c. Check tracking_link domain hints
-   d. Apply classification rules with confidence score
-   ↓
-3. Group offers by classified region
-   ↓
-4. Generate per-region Excel files:
-   ├── MENA_Offers.xlsx
-   ├── LATAM_Offers.xlsx
-   ├── APAC_Offers.xlsx
-   ├── EU_US_Offers.xlsx
-   └── GLOBAL_Offers.xlsx
-   ↓
-5. Generate summary report:
-   - Total offers per region
-   - Classification confidence distribution
-   - Items flagged for manual review
+### Step 2：按地区分类
+
+使用 `m-company_wish_writer.py` 中的 `classify_record()` 函数，按以下规则分类：
+
+| 目标文件 | 匹配规则 |
+|---|---|
+| MENA_Europe_US | Geo 含：US, GB, UK, IE, IT, DE, FR, ES, CA, AU, NZ, SA, AE, KW, OM, QA 等 |
+| Betting | Vertical 或 Name 含：betting, gambling, casino, sport, bet, wager, poker, slot |
+| LATAM | Geo 含：MX, BR, AR, CO, CL, PE, LATAM, UY, PY, BO, EC, VE 等 |
+| APAC | Geo 含：IN, ID, TH, VN, PH, MY, SG, JP, KR, CN, HK, TW 等 |
+| Forex Crypto | Vertical 或 Name 含：crypto, forex, finance, trading, block, coin, binance |
+
+- 一条数据可同时命中多个分类（如 US + Betting）
+- 未匹配任何规则的数据，默认归入 MENA_Europe_US
+
+### Step 3：写入本地 xlsx
+
+```bash
+python3 /Users/yanzhao/WorkBuddy/m-company_wish_writer.py \
+  --input /path/to/parsed.csv \
+  --output-dir /Users/yanzhao/WorkBuddy/M COMPANY_Output \
+  --no-tencent-docs
 ```
 
-### Output Structure
+输出文件：
+- `M COMPANY_MENA_Europe_US_filled.xlsx`
+- `M COMPANY_Betting_filled.xlsx`
+- `M COMPANY_LATAM_filled.xlsx`
+- `M COMPANY_APAC_filled.xlsx`
+- `M COMPANY_ForexCrypto_filled.xlsx`
 
-Each regional file contains the same 8-column schema plus:
+### Step 4：同步到腾讯文档
 
-| Additional Column | Description |
-|--------------------|-------------|
-| `region_code` | Auto-assigned region code |
-| `confidence` | Classification confidence (High/Medium/Low) |
-| `classification_source` | Which rule matched (geo_field/keyword/domain/manual) |
+对每个地区，通过腾讯文档 MCP 工具执行：
 
-### Key Features
+1. **创建在线表格**：使用 `manage.create_file` 创建腾讯文档（类型：智能表格/Excel）
+2. **写入数据**：使用 `sheet.set_range_value` 从第6行开始写入数据
+   - 列A：序号（1, 2, 3...）
+   - 列B：Client/Offer Name
+   - 列C：App id（URL）
+   - 列D：bundle ID
+   - 列E：Vertical
+   - 列F：GEO
+   - 列G：BD Working（留空）
 
-- **5-zone coverage**: Covers all major affiliate markets
-- **Confidence scoring**: Low-confidence items flagged for human review
-- **Bidirectional sync**: Regional files can be merged back to master
-- **Template-based output**: Uses pre-formatted Excel templates per region
+## 脚本路径
+
+| 文件 | 路径 | 说明 |
+|---|---|---|
+| 主脚本 | `/Users/yanzhao/WorkBuddy/m-company_wish_writer.py` | 分类 + 写入 xlsx |
+| 模板目录 | `/Users/yanzhao/WorkBuddy/M COMPANY_Templates/` | 5个空白模板 |
+| 输出目录 | `/Users/yanzhao/WorkBuddy/M COMPANY_Output/` | 填充后的 xlsx |
+
+## 注意事项
+
+- 模板文件前5行为格式/说明，数据从第6行开始
+- LATAM 模板有2个 sheet，只写入第一个 sheet（Wishlist - Target Partnerships）
+- ForexCrypto 模板只有6列（无 BD Working 列）
+- 分类结果会保存为 `_classification_debug.json` 方便调试
 
 ### Scripts
 
@@ -97,13 +107,3 @@ The following bundled scripts support this skill:
 |--------|---------|
 | [`regional_classifier.py`](scripts/regional_classifier.py) | Executable script |
 
-### Dependencies
-
-```python
-pandas >= 1.5.0
-openpyxl >= 3.1.0
-```
-
-### Integration
-
-Invoke after `wish-intelligence-collector` completes. The agent chains these two skills automatically when processing new Wish Lists.

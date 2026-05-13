@@ -1,7 +1,7 @@
 ---
-name: ai-budget-optimizer
+name: campaign-budget-analysis
 display_name: "AI Budget Allocation Optimizer | AI 预算分配优化器"
-description: "Data-driven budget allocation optimizer for multi-channel affiliate campaigns. Analyzes historical channel effectiveness (ROI, decay rates, quality scores), applies attenuation models, and generates optimized budget distribution recommendations with CAP adjustments for each channel."
+description: |
 version: 1.0.0
 agent_created: true
 compatibility:
@@ -17,102 +17,148 @@ trigger_keywords:
   - "budget allocation"
   - "渠道有效性"
   - "CAP 建议"
+
 ---
 
-# AI Budget Allocation Optimizer
-## AI 预算分配优化器
+# Campaign Budget Analysis Skill
 
-### Overview
+## 概述
 
-Replaces experience-driven budget decisions with a **quantitative framework** that analyzes each channel's historical performance and recommends optimal budget distribution.
+本skill用于营销campaign的预算分配和渠道有效性分析。通过合并AppsFlyer (AF)事件数据与CRM数据（如e-Grana转化数据），计算各渠道有效性并生成预算分配建议。
 
-### Input Data Requirements
+## 核心指标
 
-| Data Type | Source | Required Fields |
-|-----------|--------|-----------------|
-| Historical spend | Ad Network / App Dnal DB | channel, date, spend |
-| Conversion data | MMP | channel, installs, events, revenue |
-| Quality signals | App Dnal scoring | channel, retention_rate, fraud_rate |
-| Current constraints | User input | total_budget, min_per_channel, max_per_channel |
+| 指标 | 说明 |
+|------|------|
+| AF事件数 | AppsFlyer记录的有效事件（如conta_criada_sucesso_view） |
+| CRM转化数 | CRM系统中实际转化用户数（如e-Grana） |
+| 有效性 | `CRM转化数 / AF事件数 × 100%` |
+| AF CAP | 建议的AF事件量上限 |
+| 预计CRM | 基于有效性和CAP预计的CRM产出 |
 
-### Optimization Model
+## 有效性分类标准
 
-```
-Channel Score = f(ROI, Volume, Quality, Decay, Risk)
+| 分类 | 有效性范围 | Action建议 |
+|------|------------|------------|
+| ✅ 高有效性 | ≥30% | ↑增加 (Factor 1.2) |
+| ⚡ 中有效性 | 20-30% | →维持 (Factor 1.0) |
+| ⚠️ 低有效性 | <20% | ↓控制 (Factor 0.5) |
 
-Where:
-  ROI_Score     = normalized ROI percentile (0-100)
-  Volume_Score  = normalized install volume percentile (0-100)
-  Quality_Score = weighted avg of (retention_rate, fraud_inverse, LTV)
-  Decay_Factor  = time-decay weight (recent performance > older)
-  Risk_Penalty  = deduction for high-variance channels
+## 工作流程
 
-Final Budget Share_i = (Score_i / Σ Score_j) × Total_Budget
-```
+### Step 1: 数据准备
 
-### Attenuation Model
+读取以下数据源：
+- AF事件数据：包含channel、事件数、appsflyer_id等
+- CRM转化数据：包含source bank、转化用户数等
 
-Accounts for the fact that **doubling spend does not double returns**:
+关键字段映射：
+- Channel标识：`source bank`或channel字段
+- 关联键：`v_appsflyer_id`（需去重）
 
-```
-Effective_Returns = Base_Returns × (1 - e^(-α × Spend_Increment))
+### Step 2: 数据处理
 
-Where α is the channel-specific saturation coefficient
-(learned from historical spend-response curves)
-```
+```python
+# 合并AF和CRM数据
+df = pd.merge(af_data, crm_data, on='channel', how='left')
 
-### Execution Flow
+# 计算有效性
+df['有效性'] = df['CRM转化数'] / df['AF事件数'] * 100
 
-```
-1. Load historical performance data (last 4-8 weeks recommended)
-   ↓
-2. Calculate per-channel KPIs:
-   - ROI, CPA, LTV, Retention Rate, Fraud Rate
-   - Spend elasticity (how much return per additional $)
-   ↓
-3. Apply attenuation model to project diminishing returns
-   ↓
-4. Run optimization: maximize total expected ROI subject to constraints
-   ↓
-5. Generate recommendations:
-   ├── Budget allocation table (% and $ amount)
-   ├── CAP adjustment suggestions (increase/decrease/hold)
-   ├── Risk warnings for volatile channels
-   └── Expected portfolio ROI after reallocation
-   ↓
-6. Output formatted Excel with color-coded recommendations
+# 分类
+df['分类'] = df['有效性'].apply(
+    lambda x: '高' if x >= 30 else ('中' if x >= 20 else '低')
+)
+
+# 计算AF CAP
+df['Factor'] = df['有效性'].apply(
+    lambda x: 1.2 if x >= 30 else (1.0 if x >= 20 else 0.5)
+)
+df['AF_CAP'] = (df['AF事件数'] * df['Factor']).astype(int)
+
+# 计算预计CRM
+df['预计CRM'] = (df['AF_CAP'] * df['有效性'] / 100).astype(int)
 ```
 
-### Output Format
+### Step 3: 生成Excel报告
 
-#### Sheet 1: Budget Allocation Recommendation
+输出文件包含以下Sheet：
+1. **Channel Validity Data**: 按有效性分类的完整数据
+2. **Summary**: 分类汇总和整体有效性
 
-| Channel | Current Budget | Recommended Budget | Δ % | Expected ROI | Confidence | Action |
-|---------|:-------------:|:------------------:|:---:|:------------:|:----------:|--------|
-| Ch_A | $5,000 | $7,000 | +40% | 52% | High | ⬆️ Increase |
-| Ch_B | $8,000 | $4,000 | -50% | -12% | High | ⬇️ Decrease |
-| Ch_C | $3,000 | $3,500 | +17% | 35% | Medium | ➡️ Hold+ |
+Excel格式要求：
+- 表头：深蓝色背景+白色粗体字
+- 高有效性行：绿色背景
+- 中有效性行：黄色背景
+- 低有效性行：红色背景
+- 小计行：灰色背景
+- 总计行：深蓝色背景+白色字
+- 有效性列格式：百分比（如25.8%）
+- 数值列：整数，千分位分隔
 
-#### Sheet 2: Channel Effectiveness Heatmap
+### Step 4: 预算校验
 
-Matrix showing channels × KPIs with color intensity representing performance.
+```
+总AF CAP = Σ(各Channel AF CAP)
+预计总CRM = Σ(各Channel 预计CRM)
+整体有效性 = 预计总CRM / 总AF CAP × 100%
 
-#### Sheet 3: Scenario Comparison
+目标达成率 = 预计总CRM / CRM目标 × 100%
+```
 
-| Scenario | Total Budget | Expected Portfolio ROI | Risk Level |
-|----------|:-----------:|:---------------------:|:----------:|
-| Current Allocation | $50,000 | 18.2% | Medium |
-| Optimized Allocation | $50,000 | 27.8% | Low |
-| Conservative (low risk) | $50,000 | 22.1% | Very Low |
-| Aggressive (high risk) | $50,000 | 34.5% | High |
+## 脚本资源
 
-### Key Features
+### scripts/create_validity_excel.py
 
-- **Quantitative over qualitative**: Every recommendation backed by numbers
-- **Attenuation awareness**: Doesn't blindly scale top performers
-- **Risk-adjusted**: Penalizes high-variance channels
-- **Constraint-aware**: Respects min/max budgets per channel
-- **Scenario modeling**: Shows conservative vs aggressive options
+生成Channel有效性分析Excel的核心脚本：
+
+```python
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+
+# 使用说明：
+# 1. 准备CSV文件：Channel,Validity,AF_apr,Factor,AF_CAP,Est_CRM,PID_count,Action
+# 2. 运行脚本生成Excel
+# 3. Excel打开后自动计算公式
+```
+
+### references/jxxxx_example.csv
+
+JXXXX 5月预算分配示例数据，包含23个channel的有效性分析。
+
+## 输出示例
+
+### Channel有效性数据表
+
+| Channel | Validity | AF Apr | AF CAP | Est. CRM | Action |
+|---------|----------|--------|--------|----------|--------|
+| bromo_mob | 25.8% | 4,807 | 2,207 | 569 | →维持 |
+| nain_mob | 27.9% | 1,755 | 805 | 224 | →维持 |
+| ... | ... | ... | ... | ... | ... |
+
+### 汇总表
+
+| 分类 | Channel数 | AF CAP | 预计CRM |
+|------|-----------|--------|---------|
+| 高有效性 | 9 | 144 | 46 |
+| 中有效性 | 12 | 4,205 | 1,118 |
+| 低有效性 | 2 | 80 | 14 |
+| **总计** | **23** | **4,429** | **~1,178** |
+
+## 注意事项
+
+1. **数据去重**：按`v_appsflyer_id`去重，排除特定事件（如af_purchase_esim）
+2. **渠道归因**：Source Bank确定渠道归属，不依赖PID
+3. **渠道变体**：按共同前缀合并（如bromo_mob_apr → bromo_mob）
+4. **分层输出**：高/中/低三档分区显示，便于决策
+
+## 触发词
+
+- "预算分配"、"预算规划"、"campaign分析"
+- "channel有效性"、"渠道有效性"、"有效性分析"
+- "AF CAP"、"预算建议"、"CRM转化"
+- "预算报告"、"Excel报告"、"数据分析报告"
 
 ### Scripts
 
@@ -122,11 +168,3 @@ The following bundled scripts support this skill:
 |--------|---------|
 | [`budget_optimizer.py`](scripts/budget_optimizer.py) | Executable script |
 
-### Dependencies
-
-```python
-pandas >= 1.5.0
-openpyxl >= 3.1.0
-numpy >= 1.24.0  # For numerical optimization
-scipy >= 1.10.0  # Optional: for advanced optimization algorithms
-```
