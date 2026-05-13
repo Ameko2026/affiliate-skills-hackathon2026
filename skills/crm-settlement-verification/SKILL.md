@@ -4,6 +4,10 @@ display_name: "CRM Settlement Verification | 结算数据核对智能体"
 description: "Automated settlement data verification from AppsFlyer in-app events CSV. Filters settlement records by channel, validates transaction IDs against promotion records, checks promotion window compliance, and generates a funnel analysis report."
 version: 1.1.0
 agent_created: true
+compatibility:
+  platforms: [CodeBuddy, WorkBuddy, OpenClaw]
+  requirements: [Python 3.9+]
+
 category: dataops-automation
 tags: [settlement, verification, reconciliation, appsflyer]
 layer: 1

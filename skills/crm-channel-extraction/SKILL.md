@@ -4,6 +4,10 @@ display_name: "CRM Channel Extraction | 渠道 CRM 数据提取器"
 description: "Extracts and filters channel-specific data from AppsFlyer CSV exports or CRM databases. Supports multiple filter conditions (channel name match, media source, date range, event type, attribution status) and outputs clean datasets."
 version: 1.1.0
 agent_created: true
+compatibility:
+  platforms: [CodeBuddy, WorkBuddy, OpenClaw]
+  requirements: [Python 3.9+]
+
 category: dataops-automation
 tags: [crm, channel-extraction, appsflyer, data-filtering]
 layer: 1

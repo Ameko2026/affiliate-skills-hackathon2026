@@ -4,6 +4,10 @@ display_name: "Geo Market Intelligence Engine | 区域市场情报引擎"
 description: "Multi-region market intelligence aggregator for affiliate business development. Collects and synthesizes top apps, market trends, competitor dynamics, and regulatory updates across MENA, LATAM, APAC, and Europe&US to support BD decision-making."
 version: 1.0.0
 agent_created: true
+compatibility:
+  platforms: [CodeBuddy, WorkBuddy, OpenClaw]
+  requirements: [Python 3.9+]
+
 category: business-intelligence
 tags: [market-intelligence, competitive-analysis, bd-support, geo-expansion]
 layer: 2

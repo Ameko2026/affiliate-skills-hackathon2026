@@ -4,6 +4,10 @@ display_name: "Regional Wish Classifier | 区域 Wish 智能分类器"
 description: "Auto-classifies affiliate offers by geographic region based on country codes, geo-targeting fields, and contextual clues. Supports 5 regional zones (MENA, LATAM, APAC, Europe&US, Global) and generates separate regional spreadsheets synchronized with master tracking documents."
 version: 1.0.0
 agent_created: true
+compatibility:
+  platforms: [CodeBuddy, WorkBuddy, OpenClaw]
+  requirements: [Python 3.9+]
+
 category: business-intelligence
 tags: [geo-classification, regional-segmentation, affiliate-marketing, automation]
 layer: 2

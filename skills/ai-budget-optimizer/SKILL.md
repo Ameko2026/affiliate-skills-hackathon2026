@@ -4,6 +4,10 @@ display_name: "AI Budget Allocation Optimizer | AI 预算分配优化器"
 description: "Data-driven budget allocation optimizer for multi-channel affiliate campaigns. Analyzes historical channel effectiveness (ROI, decay rates, quality scores), applies attenuation models, and generates optimized budget distribution recommendations with CAP adjustments for each channel."
 version: 1.0.0
 agent_created: true
+compatibility:
+  platforms: [CodeBuddy, WorkBuddy, OpenClaw]
+  requirements: [Python 3.9+]
+
 category: dataops-automation
 tags: [budget-allocation, optimization, roi, campaign-management, affiliate]
 layer: 1

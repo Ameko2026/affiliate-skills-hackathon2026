@@ -4,6 +4,10 @@ display_name: "PA Channel Export | PA 渠道数据导出器"
 description: "Exports Protected Apps (PA) anti-fraud data from AppsFlyer CSV into styled Excel reports filtered by channel. Preserves all 60+ original CSV fields while highlighting key fraud reason columns (Blocked Reason, Rejected Reason etc.) with orange headers and yellow background for easy partner review."
 version: 1.0.0
 agent_created: true
+compatibility:
+  platforms: [CodeBuddy, WorkBuddy, OpenClaw]
+  requirements: [Python 3.9+]
+
 category: anti-fraud
 tags: [pa, anti-fraud, appsflyer, excel-export, channel-report]
 layer: 3

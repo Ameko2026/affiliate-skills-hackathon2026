@@ -4,6 +4,10 @@ display_name: "Conversion Funnel Intelligence | 转化漏斗智能分析"
 description: "Analyzes conversion funnel performance for fintech/app verticals. Identifies funnel bottlenecks, projects conversion rates at each stage, and generates CAP (capacity) planning recommendations with color-coded effectiveness ratings for each traffic source."
 version: 1.0.0
 agent_created: true
+compatibility:
+  platforms: [CodeBuddy, WorkBuddy, OpenClaw]
+  requirements: [Python 3.9+]
+
 category: business-intelligence
 tags: [funnel-analysis, conversion-rate, cap-planning, fintech, affiliate]
 layer: 2

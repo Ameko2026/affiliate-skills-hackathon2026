@@ -4,6 +4,10 @@ display_name: "Cross-Regional Revenue Audit Agent | 跨区域收入审计智能�
 description: "Full-chain P&L (Profit & Loss) audit for digital product campaigns across regions. Automatically integrates MMP install/conversion data, ad network settlement data, and payment gateway revenue to generate a comprehensive 7-sheet Excel report highlighting ROI-positive and ROI-negative channels by region and cohort."
 version: 1.0.0
 agent_created: true
+compatibility:
+  platforms: [CodeBuddy, WorkBuddy, OpenClaw]
+  requirements: [Python 3.9+]
+
 category: dataops-automation
 tags: [revenue-audit, p-and-l, roi-analysis, financial-reporting, affiliate]
 layer: 1

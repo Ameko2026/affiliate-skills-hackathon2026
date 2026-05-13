@@ -4,6 +4,10 @@ display_name: "PA Report Workflow | PA 报告更新工作流"
 description: "Weekly PA (Protected Apps) report data update pipeline. Collects AppsFlyer PA CSV files from Downloads folder, processes them into JS array format, and injects data into an HTML report page. Handles cross-period date splitting and multi-app aggregation."
 version: 1.0.0
 agent_created: true
+compatibility:
+  platforms: [CodeBuddy, WorkBuddy, OpenClaw]
+  requirements: [Python 3.9+]
+
 category: anti-fraud
 tags: [pa-report, workflow, weekly-update, html-report, automation]
 layer: 3

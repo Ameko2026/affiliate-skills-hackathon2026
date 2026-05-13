@@ -4,6 +4,10 @@ display_name: "Wish Intelligence Collector | 渠道 Wish 智能采集器"
 description: "AI-powered Wish List parser for affiliate marketing. Automatically extracts offer information from multi-format channel Wish Lists (screenshots via OCR, text, Excel) and converts them into a standardized 8-column tracking table. Eliminates manual data entry errors and ensures consistent data structure across all channels."
 version: 1.0.0
 agent_created: true
+compatibility:
+  platforms: [CodeBuddy, WorkBuddy, OpenClaw]
+  requirements: [Python 3.9+]
+
 category: business-intelligence
 tags: [wish-list, parsing, ocr, data-normalization, affiliate-marketing]
 layer: 2
