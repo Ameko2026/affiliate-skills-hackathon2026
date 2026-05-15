@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data files (sensitive)
+data/raw/*.csv
+data/raw/*.xlsx
+!data/raw/.gitkeep
+
+# Output (generated)
+output/*
+!output/.gitkeep
+
+# Temp
+*.tmp
+/tmp/
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
+
+# Demo
+demo/.streamlit/
