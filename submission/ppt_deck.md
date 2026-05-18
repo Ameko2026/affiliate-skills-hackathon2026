@@ -540,8 +540,8 @@ curl -X POST https://api.skillhub.example/v1/skills \
 ---
 
 ### 演示地址
-- 🌐 Streamlit Demo：share.streamlit.io/...
-- 📦 SkillHub：skillhub.example/...
+- 🌐 Streamlit Demo：https://affiliate-skills-hackathon2026.streamlit.app/
+- 📦 GitHub：https://github.com/Ameko2026/affiliate-skills-hackathon2026
 
 ---
 

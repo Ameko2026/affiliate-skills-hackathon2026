@@ -7,7 +7,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/version-1.0.0-blue" alt="Version">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
-  <img src="https://img.shields.io/badge/skills-13-orange" alt="Skills Count">
+  <img src="https://img.shields.io/badge/skills-15-orange" alt="Skills Count">
   <img src="https://img.shields.io/badge/platform-AI%20Agent-purple" alt="Platform">
 </p>
 
@@ -21,31 +21,34 @@ As a cross-border affiliate network operator managing **20+ traffic channels** a
 2. **Low cross-cultural communication efficiency** — Language barriers cause 5-8 email round-trips per issue
 3. **Experience-driven budget allocation** — 20-30% budget wasted on low-quality traffic
 
-This project encapsulates affiliate operations knowledge into **13 reusable AI Agent Skills** with a **four-layer architecture**:
+This project encapsulates affiliate operations knowledge into **15 reusable AI Agent Skills** with a **five-layer architecture**:
 
 ```
 Global Affiliate Ops Agent
 ├── Layer 1 — DataOps Automation (Data Extraction & Validation)
 │   ├── CRM Channel Extraction          — Extract & filter channel data from MMP CSV
 │   ├── CRM Settlement Verification      — Auto-reconcile settlement data
-│   └── PA Channel Export               — Generate anti-fraud reports for partners
+│   ├── Multi-MMP Attribution Engine    — Deduplicate & normalize channel variants
+│   └── Cross-Regional Revenue Audit    — Full P&L analysis across regions
 │
 ├── Layer 2 — Business Intelligence (Analysis & Insights)
 │   ├── Wish Intelligence Collector     — Parse multi-format Wish Lists → tracking table
 │   ├── Regional Wish Classifier        — Auto-classify offers by geo-region (5 zones)
-│   ├── Multi-MMP Attribution Engine    — Deduplicate & normalize channel variants
-│   ├── Cross-Regional Revenue Audit    — Full P&L analysis across regions
 │   ├── AI Budget Allocation Optimizer  — Data-driven budget distribution
 │   ├── Conversion Funnel Intelligence — Funnel bottleneck detection & CAP planning
 │   ├── Geo Market Intelligence Engine  — Multi-region market intel aggregation
 │   └── Macroeconomic Monitoring Agent — Daily macro data tracking & alerting
 │
 ├── Layer 3 — Anti-Fraud & Reporting (Specialized Workflows)
-│   ├── PA Report Workflow              — Weekly PA HTML report update pipeline
-│   └── Channel-Specific PA Report      — Deep-dive single-channel fraud analysis
+│   ├── PA Channel Export               — Generate anti-fraud reports for partners
+│   └── PA Report Workflow              — Weekly PA HTML report update pipeline
 │
-└── Layer 4 — Cross-Cultural Collaboration (Core Differentiator)
-    └── Cross-Cultural Negotiation Copilot — BR↔CN communication style adapter
+├── Layer 4 — Cross-Cultural Collaboration (Core Differentiator)
+│   └── Cross-Cultural Negotiation Copilot — BR↔CN communication style adapter
+│
+└── Layer 5 — AI Organization Behavior 🆕 (Core Innovation)
+    ├── Partner Memory System           — 10-dimension partner memory for AI agents
+    └── Relationship Health Score       — Real-time partner health scoring (0-100)
 ```
 
 ## ✨ 核心亮点 (Key Highlights)
@@ -53,8 +56,8 @@ Global Affiliate Ops Agent
 | 维度 | 说明 |
 |------|------|
 | **🏭 生产验证** | 所有 Skill 基于真实运营场景开发，已在日常工作中投入使用 |
-| **🧩 模块化架构** | 四层解耦，新增区域/Vertical 只需添加对应 Skill |
-| **🌍 跨文化差异化** | Layer 4 解决巴西↔中国沟通痛点，为独家能力 |
+| **🧩 模块化架构** | 五层解耦，新增区域/Vertical 只需添加对应 Skill |
+| **🌍 跨文化差异化** | Layer 4 解决巴西↔中国沟通痛点，Layer 5 AI 记忆+健康度为独家能力 |
 | **⚡ 即插即用** | 每个 SKILL.md 内嵌完整可执行 Python 脚本，AI Agent 可直接调用 |
 | **🔧 编码自适应** | 自动处理 utf-8-sig/GBK/BOM，消除跨平台乱码 |
 | **📊 数据驱动** | 业务规则来自真实运营经验，非通用 Prompt |
@@ -209,7 +212,7 @@ affiliate-skills-hackathon2026/
 | Skill Format | SKILL.md (OpenClaw / WorkBuddy compatible) |
 | Scripting Language | Python 3.8+ |
 | Data Processing | pandas, openpyxl |
-| Web Demo | Streamlit |
+| Web Demo | [Streamlit Cloud](https://affiliate-skills-hackathon2026.streamlit.app/) |
 | Version Control | Git + GitHub |
 | License | MIT |
 
