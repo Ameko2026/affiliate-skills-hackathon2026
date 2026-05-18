@@ -11,7 +11,7 @@
 - **跨文化沟通效率低**（三类广告主 × 三类流量源，沟通风格差异巨大，邮件往返 5-8 次）
 - **预算分配依赖经验**（人类判断导致 20-30% 预算浪费在低质量流量上）
 
-本作品将网盟运营知识封装为**13 个可复用 AI Agent Skill**，采用五层架构：
+本作品将网盟运营知识封装为**15 个可复用 AI Agent Skill**，采用五层架构：
 **Layer 1 数据接入层**从 OCR 结算单自动提取渠道数据（crm-channel-extraction）、自动对账标记异常（crm-settlement-verification）
 **Layer 2 数据分析层**含 Wish List 智能分析（wish-intelligence-collector / regional-wish-classifier）；多 MMP 归因去重基于 Source Bank 优先级（multi-mmp-attribution-engine）；预算最优生成建议（ai-budget-optimizer）；区域市场情报（geo-market-intel-engine）；转化漏斗分析（conversion-funnel-intelligence）；宏观监控（macro-monitoring-agent）
 **Layer 3 反作弊与归因层**处理 PA 渠道数据导出（pa-channel-export）、PA 报告自动化工作流（pa-report-workflow）
