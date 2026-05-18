@@ -11,6 +11,12 @@
   <img src="https://img.shields.io/badge/platform-AI%20Agent-purple" alt="Platform">
 </p>
 
+<p align="center">
+  <a href="https://affiliate-skills-hackathon2026.streamlit.app/"><strong>🚀 Live Demo (Streamlit Cloud)</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://skillhub.cn/"><strong>📦 SkillHub (15 Skills Published)</strong></a>
+</p>
+
 ---
 
 ## 📖 项目简介 (Project Introduction)
